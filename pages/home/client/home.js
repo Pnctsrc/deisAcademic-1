@@ -243,6 +243,7 @@ Template.home.onRendered(function() {
     const now_term = GlobalParameters.findOne().current_term;
     $('.js-term').dropdown("set selected", now_term);
     $('.ui.checkbox').checkbox();
+    $('.ui.accordion').accordion();
 
     //this gets all the professors names and initialize the search selection
     //so that the user can search a professor name
@@ -725,9 +726,10 @@ Template.search_result.helpers({
 
 Template.search_result.events({
     "click .js-result-table tbody tr": function(event) {
-        if (event.target.nodeName === "DIV") {
+        if (event.target.nodeName === "DIV" || event.target.nodeName === "I" || event.target.className === "description") {
             return;
         }
+
         const homeDict = Template.instance().homeDict;
         homeDict.set('courseInfo');
         homeDict.set('sectionDetail', []);
@@ -882,7 +884,12 @@ Template.search_result_time_table.helpers({
 
     sectionData: function() {
         const homeDict = Template.instance().homeDict;
-        return _.sortBy(homeDict.get('sectionDetail'), 'section');
+        const data = homeDict.get('sectionDetail').sort(function(a, b){return a.section - b.section});
+
+        for(let i = 0; i < data.length; i++){
+            data[i].index = i;
+        }
+        return data;
     },
 
     settings_result: function() {
@@ -999,6 +1006,9 @@ Template.search_result_time_table.helpers({
                             return new Spacebars.SafeString(instructors);
                         };
                     }
+                }, {
+                    key: 'index',
+                    hidden: true
                 },
             ],
         };
